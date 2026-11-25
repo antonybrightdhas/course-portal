@@ -1,163 +1,50 @@
 <?php
-session_start();
+include("include/protect.php");
+require_login('student');
 include("include/dbconnect.php");
-extract($_REQUEST);
-$uname=$_SESSION['uname'];	
 
-$q1=mysql_query("select * from ee_certificate where uname='$uname'");
-$r1=mysql_fetch_array($q1);
-$course=$r1['course'];
-
-$q2=mysql_query("select * from ee_certificate where id='".$r1['course']."'");
-					$r2=mysql_fetch_array($q2);
-					
+$uname = $_SESSION['uname'];
+$q2 = db_query("SELECT * FROM ee_certificate WHERE uname='" . db_escape($uname) . "'");
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title><?php include("include/title.php"); ?></title>
-<link rel="shortcut icon" href="img/icon.ico">
-
-<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-	<link rel="shortcut icon" href="favicon.ico">
-	
-	<!-- Animate.css -->
-	<link rel="stylesheet" href="css/animate.css">
-	<!-- Icomoon Icon Fonts-->
-	<link rel="stylesheet" href="css/icomoon.css">
-	<!-- Simple Line Icons -->
-	<link rel="stylesheet" href="css/simple-line-icons.css">
-	<!-- Bootstrap  -->
-	<link rel="stylesheet" href="css/bootstrap.css">
-	<!-- Owl Carousel  -->
-	<link rel="stylesheet" href="css/owl.carousel.min.css">
-	<link rel="stylesheet" href="css/owl.theme.default.min.css">
-	<!-- Style -->
-	<link rel="stylesheet" href="css/style.css">
-
-
-	<!-- Modernizr JS -->
-	<script src="js/modernizr-2.6.2.min.js"></script>
-	<!-- FOR IE9 below -->
-	<!--[if lt IE 9]>
-	<script src="js/respond.min.js"></script>
-	<![endif]-->
-<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
-
+<?php include("include/head.php"); ?>
 </head>
-
 <body>
-   <?php include("include/link_user.php"); ?>
- <div class="panel panel-default">
-  <div class="panel-heading" align="center"><!--<img src="img/header.jpg" width="1060" height="276" />--></div>
+<?php include("include/link_user.php"); ?>
+<div class="panel panel-default">
+  <div class="panel-heading" align="center"></div>
   <div class="panel-body">
-   <h3 align="center"></h3>
+    <h3 align="center"></h3>
   </div>
 </div>
- <!--start content area-->
- 
-<!--<div class="row">
-			<div class="col-lg-4">
-				
-				
-			</div>
-			
-			
-			
-            <div class="col-lg-4">
-              <div class="card">
-                <div class="card-header d-flex align-items-center">
-                  <h2 class="h5 display display">
-                    <h2>Tutorial</h2>
-                  </h2>
-                </div>
-                <div class="card-block">
-                  <p></p>
-                  <form name="form1" method="post">
-                    
-					<div class="form-group">
-                      <label>Course</label>
-                      <select name="course" class="form-control">
-					  <option value="">-Select Course-</option>
-					  <?php
-					  /*$cq=mysql_query("select * from ee_course");
-					  while($cr=mysql_fetch_array($cq))
-					  {
-					  ?>
-					  <option value="<?php echo $cr['id']; ?>" <?php if($course==$cr['id']) echo "selected"; ?>><?php echo $cr['course']; ?></option>
-					  <?php
-					  }*/
-					  ?>
-					  </select>
-                    </div>
-                   
-					
-				
-					
-                        
-                    <div class="form-group">       
-                      <input type="submit" name="btn" value="Submit" class="btn btn-primary" onClick="return validate()">
-                    </div>
-                  </form>
-                </div>
-              </div>
-
-</div>
-
-</div>
- -->
- 
-
-<h2 align="center">Download Certificate <?php echo $r2['course']; ?></h2>
-<!-- row end -->
-  <?php
-  if($course!="")
-  {
-  $q2=mysql_query("select * from ee_certificate where uname='$uname'");
-  ?>
+<!--start content area-->
+<h2 align="center">Download Certificate</h2>
+<?php if (db_num_rows($q2) > 0) { ?>
 <table width="80%" border="1" align="center">
   <tr>
-    <th width="4%">Course</th>
-    <th width="21%">Duration</th>
-    <th width="26%">Username</th>
-    <th width="18%">Certificate</th>
+    <th width="20%">Course</th>
+    <th width="20%">Duration</th>
+    <th width="25%">Username</th>
+    <th width="35%">Certificate</th>
   </tr>
-  <?php
-  $i=0;
-  
-  while($r2=mysql_fetch_array($q2))
-  {
-  $i++;
-  ?>
+  <?php while ($r2 = db_fetch_array($q2)) { ?>
   <tr>
-    <td><?php echo $r2['course'];  ?></td>
-    <td><?php echo $r2['duration']; ?></td>
-    <td><?php echo $r2['uname']; ?></td>
+    <td><?php echo h($r2['course']); ?></td>
+    <td><?php echo h($r2['duration']); ?></td>
+    <td><?php echo h($r2['uname']); ?></td>
     <td>
-	<?php
-	if($r2['filename']!="")
-	{
-	?>
-	<a href="upload/<?php echo $r2['filename']; ?>" target="_blank"><?php echo $r2['filename']; ?></a>
-	<?php
-	}
-	else
-	{
-	echo '-';
-	}
-	?>	</td>
+      <?php if ($r2['filename'] !== "") { ?>
+      <a href="upload/<?php echo rawurlencode($r2['filename']); ?>" target="_blank"><?php echo h($r2['filename']); ?></a>
+      <?php } else { echo '-'; } ?>
+    </td>
   </tr>
-  <?php
-  }
-  ?>
+  <?php } ?>
 </table>
-<?php
-}
-?>
-<p align="center">&nbsp;</p>
+<?php } else { ?>
+<p align="center">No certificates issued yet.</p>
+<?php } ?>
 <p>&nbsp;</p>
 </body>
 </html>

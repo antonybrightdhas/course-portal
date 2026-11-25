@@ -1,1 +1,1 @@
-<div class="heading">Smart City Bus</div>
+<div class="heading"><?php include("include/title.php"); ?></div>
